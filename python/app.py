@@ -1,5 +1,4 @@
 import streamlit as st
-import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -28,6 +27,7 @@ selected_product = st.selectbox(
 )
 
 if st.button("Compare Prices"):
+    import matplotlib.dates as mdates
     query = """
     SELECT
         p.product_name   AS product,
