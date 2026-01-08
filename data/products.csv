@@ -1,0 +1,31 @@
+product_id,product_name,category,brand
+1,"Boat Rockerz 450 Headphones",Electronics,Boat
+2,"JBL Tune 510BT Headphones",Electronics,JBL
+3,"Sony WH-1000XM4 Headphones",Electronics,Sony
+4,"Apple AirPods 2",Electronics,Apple
+5,"Samsung Galaxy Buds",Electronics,Samsung
+6,"Nike Revolution Shoes",Footwear,Nike
+7,"Adidas Ultraboost Shoes",Footwear,Adidas
+8,"Puma Smash V2 Shoes",Footwear,Puma
+9,"Reebok Running Shoes",Footwear,Reebok
+10,"Skechers Go Walk",Footwear,Skechers
+11,"Amazon Echo Dot",Electronics,Amazon
+12,"Fire TV Stick",Electronics,Amazon
+13,"Mi Smart Band 6",Electronics,Xiaomi
+14,"Samsung Galaxy M14",Electronics,Samsung
+15,"Realme Narzo 60",Electronics,Realme
+16,"HP Wireless Mouse",Accessories,HP
+17,"Logitech Keyboard",Accessories,Logitech
+18,"Dell Laptop Backpack",Accessories,Dell
+19,"Canon EOS 1500D",Electronics,Canon
+20,"Nikon D3500",Electronics,Nikon
+21,"Lenovo IdeaPad Slim 3",Computers,Lenovo
+22,"Asus VivoBook 15",Computers,Asus
+23,"Acer Aspire 5",Computers,Acer
+24,"HP Pavilion 14",Computers,HP
+25,"Apple MacBook Air M1",Computers,Apple
+26,"OnePlus Nord CE 3",Electronics,OnePlus
+27,"Samsung Galaxy S21 FE",Electronics,Samsung
+28,"iQOO Z7",Electronics,iQOO
+29,"Sony Bravia 43 TV",Electronics,Sony
+30,"LG Washing Machine","Home Appliances",LG
