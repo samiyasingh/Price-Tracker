@@ -10,10 +10,10 @@ st.title("🛒 E-commerce Price Tracker")
 st.write("Compare product prices across platforms")
 
 # ---------------- LOAD CSV DATA ----------------
-products_df = pd.read_csv("../data/products.csv")
-platforms_df = pd.read_csv("../data/platforms.csv")
-price_history_df = pd.read_csv("../data/price_history.csv")
 
+products_df = pd.read_csv("data/products.csv")
+platforms_df = pd.read_csv("data/platforms.csv")
+price_history_df = pd.read_csv("data/price_history.csv")
 
 price_history_df["price_date"] = pd.to_datetime(price_history_df["price_date"])
 
