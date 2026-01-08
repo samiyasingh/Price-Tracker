@@ -1,111 +1,113 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
-from db_connection import get_connection
-
+# -------------------------------------------------
+# PAGE CONFIG
+# -------------------------------------------------
 st.set_page_config(page_title="Price Tracker", layout="centered")
 
 st.title("🛒 E-commerce Price Tracker")
 st.write("Compare product prices across platforms")
 
-#  DB
-conn = get_connection()
+# -------------------------------------------------
+# LOAD DATA FROM CSV (EXPORTED FROM MYSQL)
+# -------------------------------------------------
+products_df = pd.read_csv("data/products.csv")
+platforms_df = pd.read_csv("data/platforms.csv")
+price_df = pd.read_csv("data/price_history.csv")
 
-# product list
-products_df = pd.read_sql(
-    "SELECT product_name FROM products ORDER BY product_name",
-    conn
+price_df["price_date"] = pd.to_datetime(price_df["price_date"])
+
+# -------------------------------------------------
+# RECREATE SQL JOIN USING PANDAS
+# (Equivalent to your original SQL query)
+# -------------------------------------------------
+df_all = (
+    price_df
+    .merge(products_df, on="product_id")
+    .merge(platforms_df, on="platform_id")
 )
 
-product_list = products_df["product_name"].tolist()
+# -------------------------------------------------
+# PRODUCT SELECTION
+# -------------------------------------------------
+product_list = sorted(df_all["product_name"].unique())
 
 selected_product = st.selectbox(
     "Select a product",
     product_list
 )
 
+# -------------------------------------------------
+# BUTTON ACTION
+# -------------------------------------------------
 if st.button("Compare Prices"):
     import matplotlib.dates as mdates
-    query = """
-    SELECT
-        p.product_name   AS product,
-        pl.platform_name AS platform,
-        ph.price_date    AS price_date,
-        ph.selling_price AS selling_price
-    FROM price_history ph
-    JOIN platforms pl ON ph.platform_id = pl.platform_id
-    JOIN products p ON ph.product_id = p.product_id
-    WHERE p.product_name = %s
-    ORDER BY ph.price_date
-    """
 
-
-    df = pd.read_sql(query, conn, params=(selected_product,))
-    
-    # st.write("Columns in dataframe:", df.columns.tolist())
-   
-
-    
-    df["signal"] = (
-    df["product"].apply(lambda x: hash(x) % 7) +
-    df["platform"].apply(lambda x: hash(x) % 5) +
-    df.groupby(["product", "platform"]).cumcount()
-    )
-
-    df["fluctuation"] = np.sin(df["signal"]) * 0.08
-
-    df["selling_price"] = df["selling_price"] * (1 + df["fluctuation"])
-
+    df = df_all[df_all["product_name"] == selected_product].copy()
 
     if df.empty:
         st.warning("No data available for this product.")
-    else:
-        st.subheader(f"Price Trend – {selected_product}")
+        st.stop()
 
-        fig, ax = plt.subplots(figsize=(10, 5))
+    # -------------------------------------------------
+    # ADD REALISTIC VARIATION (NO IDENTICAL GRAPHS)
+    # -------------------------------------------------
+    df["signal"] = (
+        df["product_id"] * 0.35 +
+        df["platform_id"] * 0.55 +
+        df.groupby(["product_id", "platform_id"]).cumcount()
+    )
 
-        colors = {
+    df["selling_price"] = df["selling_price"] * (
+        1 + np.sin(df["signal"]) * 0.07
+    )
+
+    # -------------------------------------------------
+    # PLOT
+    # -------------------------------------------------
+    st.subheader(f"Price Trend – {selected_product}")
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    colors = {
         "Amazon": "#1f77b4",
         "Flipkart": "#ff7f0e",
         "Myntra": "#2ca02c"
-        }
+    }
 
-        for platform in df["platform"].unique():
+    for platform in df["platform_name"].unique():
+        p_df = df[df["platform_name"] == platform]
 
-            platform_df = df[df["platform"] == platform]
-
-            ax.plot(
-                platform_df["price_date"],
-                platform_df["selling_price"],
-                label=platform,
-                linewidth=2.5,
-                marker='o',
-                markersize=7,
-                color=colors.get(platform, None)
-            )
-
-        ax.set_title(
-            f"Price Trend Comparison – {selected_product}",
-            fontsize=14,
-            fontweight="bold",
-            pad=15
+        ax.plot(
+            p_df["price_date"],
+            p_df["selling_price"],
+            label=platform,
+            linewidth=2.5,
+            marker="o",
+            markersize=6,
+            color=colors.get(platform)
         )
 
-        ax.set_xlabel("Date", fontsize=11)
-        ax.set_ylabel("Selling Price (₹)", fontsize=11)
+    ax.set_title(
+        f"Price Trend Comparison – {selected_product}",
+        fontsize=14,
+        fontweight="bold",
+        pad=15
+    )
 
-        ax.grid(True, linestyle="--", alpha=0.3)
-        ax.legend(frameon=False)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Selling Price (₹)")
 
-               
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
-        ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
-        ax.tick_params(axis='x', rotation=45)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    ax.tick_params(axis="x", rotation=45)
 
-        fig.tight_layout()
+    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.legend(frameon=False)
 
+    fig.tight_layout()
+    st.pyplot(fig)
 
-        st.pyplot(fig)
-conn.close()
