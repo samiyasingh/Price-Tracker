@@ -9,7 +9,7 @@ st.set_page_config(page_title="Price Tracker", layout="centered")
 st.title("🛒 E-commerce Price Tracker")
 st.write("Compare product prices across platforms")
 
-# ---------------- LOAD CSV DATA ----------------
+#  LOAD CSV DATA 
 
 products_df = pd.read_csv("data/products.csv")
 platforms_df = pd.read_csv("data/platforms.csv")
@@ -17,7 +17,7 @@ price_history_df = pd.read_csv("data/price_history.csv")
 
 price_history_df["price_date"] = pd.to_datetime(price_history_df["price_date"])
 
-# ---------------- PRODUCT LIST ----------------
+#  PRODUCT LIST 
 
 product_list = ["— Select a product —"] + products_df["product_name"].tolist()
 
@@ -31,7 +31,7 @@ if st.button("Compare Prices"):
         st.warning("Please select a product first.")
         st.stop()
 
-    # -------- SQL JOIN equivalent using pandas --------
+    #  SQL JOIN equivalent using pandas 
     df = (
         price_history_df
         .merge(products_df, on="product_id")
@@ -45,7 +45,7 @@ if st.button("Compare Prices"):
         "platform_name": "platform"
     })
 
-    # ---------------- PRICE FLUCTUATION ----------------
+    #  PRICE FLUCTUATION 
 
     df["signal"] = (
         df["product"].apply(lambda x: hash(x) % 7)
